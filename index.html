@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Категоряшка</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 2.5em;
+            color: #333;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            gap: 20px;
+        }
+
+        .stat-item {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 15px;
+            text-align: center;
+            flex: 1;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .question-container {
+            margin-bottom: 30px;
+        }
+
+        .question {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            text-align: center;
+            border-left: 5px solid #667eea;
+        }
+
+        .answers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .answer-btn {
+            padding: 15px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(45deg, #74b9ff, #0984e3);
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .answer-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .answer-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .answer-btn.correct {
+            background: linear-gradient(45deg, #00b894, #00cec9);
+            animation: correctPulse 0.6s ease-in-out;
+        }
+
+        .answer-btn.incorrect {
+            background: linear-gradient(45deg, #e17055, #d63031);
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes correctPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .animation-container {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 3em;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .happy-animation {
+            animation: bounce 0.6s ease-in-out;
+        }
+
+        .sad-animation {
+            animation: fadeInOut 1s ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: 1; transform: scale(1.2); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .start-screen, .end-screen {
+            text-align: center;
+        }
+
+        .start-btn, .restart-btn {
+            background: linear-gradient(45deg, #fd79a8, #e84393);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .start-btn:hover, .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .timer {
+            font-size: 1.2em;
+            color: #e17055;
+            font-weight: bold;
+        }
+
+        .timer.warning {
+            color: #d63031;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .result-message {
+            font-size: 1.5em;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .result-excellent {
+            background: linear-gradient(45deg, #00b894, #00cec9);
+            color: white;
+        }
+
+        .result-good {
+            background: linear-gradient(45deg, #fdcb6e, #e17055);
+            color: white;
+        }
+
+        .result-poor {
+            background: linear-gradient(45deg, #fd79a8, #e84393);
+            color: white;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1 class="title">🎯 Категоряшка</h1>
+        </div>
+
+        <!-- Стартовый экран -->
+        <div id="startScreen" class="start-screen">
+            <p style="font-size: 1.2em; margin-bottom: 20px; color: #666;">
+                Добро пожаловать в игру-викторину!<br>
+                Ответьте на 4 вопроса за 1 минуту
+            </p>
+            <button class="start-btn" onclick="startGame()">🚀 Начать игру</button>
+        </div>
+
+        <!-- Игровой экран -->
+        <div id="gameScreen" class="hidden">
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-label">Время</div>
+                    <div class="stat-value timer" id="timer">1:00</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Вопрос</div>
+                    <div class="stat-value" id="questionNumber">1/4</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Правильно</div>
+                    <div class="stat-value" id="correctAnswers">0</div>
+                </div>
+            </div>
+
+            <div class="question-container">
+                <div class="question" id="questionText"></div>
+                <div class="answers" id="answersContainer"></div>
+            </div>
+
+            <div class="animation-container" id="animationContainer"></div>
+        </div>
+
+        <!-- Финальный экран -->
+        <div id="endScreen" class="hidden">
+            <div class="result-message" id="resultMessage"></div>
+            <div style="text-align: center; margin: 20px 0;">
+                <p style="font-size: 1.2em; color: #666;">
+                    Правильных ответов: <span id="finalScore"></span> из 4
+                </p>
+            </div>
+            <button class="restart-btn" onclick="restartGame()">🔄 Играть снова</button>
+        </div>
+    </div>
+
+    <script>
+        // Вопросы и ответы - ЗДЕСЬ МОЖНО РЕДАКТИРОВАТЬ!
+        const questions = [
+            {
+                question: "Какой категории качества может быть 100% пакет акций действующего завода по производству целлюлозы, в случае если в залог не передается БДМ?",
+                answers: ["основное", "комфортное", "бланковое"],
+                correct: 2 // Правильный ответ: "бланковое"
+            },
+            {
+                question: "Методика по проведению типовых залоговых операций имеет номер?",
+                answers: ["2222", "2171", "2093"],
+                correct: 1 // Правильный ответ: "2171"
+            },
+            {
+                question: "Кто в ЗС призван решать проблемы бизнеса и всегда является крайним?",
+                answers: ["РН", "ТМ", "валидатор"],
+                correct: 1 // Правильный ответ: "ТМ"
+            },
+            {
+                question: "Какой документ обязательно нужен ЗС в сделках бридж-кредитования?",
+                answers: ["КХП", "Квартирография", "Благословение ТМ"],
+                correct: 0 // Правильный ответ: "КХП"
+            }
+        ];
+
+        /* 
+        📝 ИНСТРУКЦИЯ ПО РЕДАКТИРОВАНИЮ ВОПРОСОВ:
+        
+        1. Каждый вопрос - это объект с тремя свойствами:
+           - question: "Текст вопроса"
+           - answers: ["Вариант 1", "Вариант 2", "Вариант 3", "Вариант 4"]
+           - correct: номер правильного ответа (0, 1, 2 или 3)
+        
+        2. Индексы ответов начинаются с 0:
+           - answers[0] = первый вариант (correct: 0)
+           - answers[1] = второй вариант (correct: 1)
+           - answers[2] = третий вариант (correct: 2)
+           - answers[3] = четвертый вариант (correct: 3)
+        
+        3. Пример нового вопроса:
+           {
+               question: "Столица России?",
+               answers: ["Санкт-Петербург", "Москва", "Казань", "Сочи"],
+               correct: 1
+           }
+        
+        4. Можно добавить больше вопросов - просто скопируйте структуру!
+        */
+
+        let currentQuestion = 0;
+        let correctCount = 0;
+        let timeLeft = 60; // 1 минута в секундах
+        let gameTimer;
+        let gameStarted = false;
+
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+            
+            currentQuestion = 0;
+            correctCount = 0;
+            timeLeft = 60;
+            gameStarted = true;
+            
+            updateStats();
+            showQuestion();
+            startTimer();
+        }
+
+        function startTimer() {
+            gameTimer = setInterval(() => {
+                timeLeft--;
+                updateTimer();
+                
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            const timerElement = document.getElementById('timer');
+            timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft <= 30) {
+                timerElement.classList.add('warning');
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('questionNumber').textContent = `${currentQuestion + 1}/4`;
+            document.getElementById('correctAnswers').textContent = correctCount;
+        }
+
+        function showQuestion() {
+            if (currentQuestion >= questions.length) {
+                endGame();
+                return;
+            }
+
+            const question = questions[currentQuestion];
+            document.getElementById('questionText').textContent = question.question;
+            
+            const answersContainer = document.getElementById('answersContainer');
+            answersContainer.innerHTML = '';
+            
+            question.answers.forEach((answer, index) => {
+                const button = document.createElement('button');
+                button.className = 'answer-btn';
+                button.textContent = answer;
+                button.onclick = () => selectAnswer(index);
+                answersContainer.appendChild(button);
+            });
+        }
+
+        function selectAnswer(selectedIndex) {
+            const question = questions[currentQuestion];
+            const isCorrect = selectedIndex === question.correct;
+            
+            // Отключаем все кнопки
+            const buttons = document.querySelectorAll('.answer-btn');
+            buttons.forEach((btn, index) => {
+                btn.disabled = true;
+                if (index === question.correct) {
+                    btn.classList.add('correct');
+                } else if (index === selectedIndex && !isCorrect) {
+                    btn.classList.add('incorrect');
+                }
+            });
+
+            // Показываем анимацию
+            showAnimation(isCorrect);
+            
+            if (isCorrect) {
+                correctCount++;
+                updateStats();
+            }
+
+            // Переход к следующему вопросу через 2 секунды
+            setTimeout(() => {
+                currentQuestion++;
+                if (currentQuestion < questions.length) {
+                    showQuestion();
+                    document.getElementById('animationContainer').innerHTML = '';
+                } else {
+                    endGame();
+                }
+            }, 2000);
+        }
+
+        function showAnimation(isCorrect) {
+            const container = document.getElementById('animationContainer');
+            if (isCorrect) {
+                container.innerHTML = '<div class="happy-animation">🎉 🎊 😊 🎉</div>';
+            } else {
+                container.innerHTML = '<div class="sad-animation">😢 😞 😔</div>';
+            }
+        }
+
+        function endGame() {
+            clearInterval(gameTimer);
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('endScreen').classList.remove('hidden');
+            
+            const finalScore = document.getElementById('finalScore');
+            const resultMessage = document.getElementById('resultMessage');
+            
+            finalScore.textContent = correctCount;
+            
+            let message, className;
+            if (correctCount === 4) {
+                message = "🏆 Ты просто повелитель ЗС";
+                className = "result-excellent";
+            } else if (correctCount === 3) {
+                message = "⚠️ Тебе следует быть более внимательным";
+                className = "result-good";
+            } else if (correctCount === 2) {
+                message = "😐 Я был о тебе лучшего мнения";
+                className = "result-good";
+            } else if (correctCount === 1) {
+                message = "😤 Тебе придется пройти все категорирования по всем специализациям. Я уже написал твоему руководителю об этом";
+                className = "result-poor";
+            } else {
+                message = "💀 Тебе с нами не по пути. Прощай!";
+                className = "result-poor";
+            }
+            
+            resultMessage.textContent = message;
+            resultMessage.className = `result-message ${className}`;
+        }
+
+        function restartGame() {
+            document.getElementById('endScreen').classList.add('hidden');
+            document.getElementById('startScreen').classList.remove('hidden');
+            
+            // Сброс всех значений
+            currentQuestion = 0;
+            correctCount = 0;
+            timeLeft = 60;
+            gameStarted = false;
+            
+            const timerElement = document.getElementById('timer');
+            timerElement.classList.remove('warning');
+            timerElement.textContent = '1:00';
+        }
+    </script>
+</body>
+</html>
